@@ -1,5 +1,5 @@
  #
- # Script For Building Android arm64 Kernel 
+ # Script For Building Android arm Kernel 
  #
  # Copyright (c) 2018-2019 Panchajanya1999 <rsk52959@gmail.com>
  #
@@ -45,7 +45,6 @@ function exports {
 	export KBUILD_BUILD_HOST="semaphore"
 	export ARCH=arm
 	export SUBARCH=arm
-	export KBUILD_COMPILER_STRING=$($KERNEL_DIR/arm-eabi-4.9/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')
 }
 
 function tg_post_msg {
@@ -61,9 +60,6 @@ function build_kernel {
 	if [ -f $KERNEL_DIR/arch/arm/configs/cyanogenmod_ms013g_defconfig ]
 	then 
 		DEFCONFIG=cyanogenmod_ms013g_defconfig
-	elif [ -f $KERNEL_DIR/arch/arm/configs/cyanogenmod_ms013g_defconfig ]
-	then
-		DEFCONFIG=cyanogenmod_ms013g_defconfig
 	else
 		echo "{red}Defconfig Mismatch..!!!{nocol}"
 		tg_post_msg "☠☠Defconfig Mismatch..!! Build Failed..!!👎👎" "$GROUP_ID"
@@ -71,13 +67,12 @@ function build_kernel {
 		sleep 5
 		exit
 	fi
-	
-	make O=out $DEFCONFIG
+	export CROSS_COMPILE=$KERNEL_DIR/arm-eabi-4.9/bin/arm-eabi-
+	make $DEFCONFIG
 	BUILD_START=$(date +"%s")
 	tg_post_msg "★★ Build Started on $(uname) $(uname -r) ★★" "$GROUP_ID"
-	make -j8 O=out \
-		CC=$KERNEL_DIR/arm-eabi-4.9/bin/arm-eabi- \
-		CROSS_COMPILE=$KERNEL_DIR/arm-eabi-4.9/bin/arm-eabi- 2>&1 | tee logcat.txt
+
+	make -j8 2>&1 | tee logcat.txt
 	BUILD_END=$(date +"%s")
 	BUILD_TIME=$(date +"%Y%m%d-%T")
 	DIFF=$((BUILD_END - BUILD_START))	
@@ -89,7 +84,9 @@ function check_img {
 		echo -e "{yellow}Kernel Built Successfully in $((DIFF / 60)) minute(s) and $((DIFF % 60)) seconds..!!{nocol}"
 		tg_post_msg "👍👍Kernel Built Successfully in $((DIFF / 60)) minute(s) and $((DIFF % 60)) seconds..!!" "$GROUP_ID"
 		gen_changelog
-		gen_zip
+		cd arch/arm/boot
+		tg_post_build "zImage" "$GROUP_ID"
+		#gen_zip
 	else 
 		echo -e "{red}Kernel failed to compile after $((DIFF / 60)) minute(s) and $((DIFF % 60)) seconds..!!{nocol}"
 		tg_post_msg "☠☠Kernel failed to compile after $((DIFF / 60)) minute(s) and $((DIFF % 60)) seconds..!!" "$GROUP_ID"
