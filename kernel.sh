@@ -32,24 +32,20 @@ function colors {
 
 function clone {
 	echo " "
-	echo "{yellow}★★Cloning GCC Toolchain from Android GoogleSource ..{nocol}"
+	echo "{yellow}★★Cloning UberTc Toolchain from Android GoogleSource ..{nocol}"
 	sleep 2
-	git clone --depth 1 --no-single-branch https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9.git
+	git clone --depth 1 --no-single-branch https://bitbucket.org/UBERTC/arm-eabi-4.9.git
 	echo "{blue}★★GCC cloning done{nocol}"
 	sleep 2
-	echo "{yellow}★★Cloning Clang 7 sources (r349610){nocol}"
-	git clone --depth 1 https://github.com/Panchajanya1999/clang-llvm.git -b 8.0
-	echo "{blue}★★Clang Done, Now Its time for AnyKernel ..{nocol}"
-	git clone --depth 1 --no-single-branch https://github.com/Panchajanya1999/AnyKernel2.git
 	echo "{cyan}★★Cloning Kinda Done..!!!{nocol}"
 }
 
 function exports {
 	export KBUILD_BUILD_USER="ci"
 	export KBUILD_BUILD_HOST="semaphore"
-	export ARCH=arm64
-	export SUBARCH=arm64
-	export KBUILD_COMPILER_STRING=$($KERNEL_DIR/clang-llvm/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')
+	export ARCH=arm
+	export SUBARCH=arm
+	export KBUILD_COMPILER_STRING=$($KERNEL_DIR/arm-eabi-4.9/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')
 }
 
 function tg_post_msg {
@@ -62,12 +58,12 @@ function tg_post_build {
 
 function build_kernel {
 	#better checking defconfig at first
-	if [ -f $KERNEL_DIR/arch/arm64/configs/X00T_defconfig ]
+	if [ -f $KERNEL_DIR/arch/arm/configs/cyanogenmod_ms013g_defconfig ]
 	then 
-		DEFCONFIG=X00T_defconfig
-	elif [ -f $KERNEL_DIR/arch/arm64/configs/X00TD_defconfig ]
+		DEFCONFIG=cyanogenmod_ms013g_defconfig
+	elif [ -f $KERNEL_DIR/arch/arm64/configs/cyanogenmod_ms013g_defconfig ]
 	then
-		DEFCONFIG=X00TD_defconfig
+		DEFCONFIG=cyanogenmod_ms013g_defconfig
 	else
 		echo "{red}Defconfig Mismatch..!!!{nocol}"
 		tg_post_msg "☠☠Defconfig Mismatch..!! Build Failed..!!👎👎" "$GROUP_ID"
@@ -80,16 +76,15 @@ function build_kernel {
 	BUILD_START=$(date +"%s")
 	tg_post_msg "★★ Build Started on $(uname) $(uname -r) ★★" "$GROUP_ID"
 	make -j8 O=out \
-		CC=$KERNEL_DIR/clang-llvm/bin/clang \
-		CLANG_TRIPLE=aarch64-linux-gnu- \
-		CROSS_COMPILE=$KERNEL_DIR/aarch64-linux-android-4.9/bin/aarch64-linux-android- 2>&1 | tee logcat.txt
+		CC=$KERNEL_DIR/arm-eabi-4.9/bin/arm-eabi- \
+		CROSS_COMPILE=$KERNEL_DIR/arm-eabi-4.9/bin/arm-eabi- 2>&1 | tee logcat.txt
 	BUILD_END=$(date +"%s")
 	BUILD_TIME=$(date +"%Y%m%d-%T")
 	DIFF=$((BUILD_END - BUILD_START))	
 }
 
 function check_img {
-	if [ -f $KERNEL_DIR/out/arch/arm64/boot/Image.gz-dtb ]
+	if [ -f $KERNEL_DIR/out/arch/arm/boot/zImage ]
 	then 
 		echo -e "{yellow}Kernel Built Successfully in $((DIFF / 60)) minute(s) and $((DIFF % 60)) seconds..!!{nocol}"
 		tg_post_msg "👍👍Kernel Built Successfully in $((DIFF / 60)) minute(s) and $((DIFF % 60)) seconds..!!" "$GROUP_ID"
