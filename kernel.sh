@@ -79,7 +79,7 @@ function build_kernel {
 }
 
 function check_img {
-	if [ -f $KERNEL_DIR/out/arch/arm/boot/zImage ]
+	if [ -f $KERNEL_DIR/arch/arm/boot/zImage ]
 	then 
 		echo -e "{yellow}Kernel Built Successfully in $((DIFF / 60)) minute(s) and $((DIFF % 60)) seconds..!!{nocol}"
 		tg_post_msg "👍👍Kernel Built Successfully in $((DIFF / 60)) minute(s) and $((DIFF % 60)) seconds..!!" "$GROUP_ID"
