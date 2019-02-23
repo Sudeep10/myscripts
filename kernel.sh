@@ -61,7 +61,7 @@ function build_kernel {
 	if [ -f $KERNEL_DIR/arch/arm/configs/cyanogenmod_ms013g_defconfig ]
 	then 
 		DEFCONFIG=cyanogenmod_ms013g_defconfig
-	elif [ -f $KERNEL_DIR/arch/arm64/configs/cyanogenmod_ms013g_defconfig ]
+	elif [ -f $KERNEL_DIR/arch/arm/configs/cyanogenmod_ms013g_defconfig ]
 	then
 		DEFCONFIG=cyanogenmod_ms013g_defconfig
 	else
@@ -103,7 +103,7 @@ function gen_changelog {
 }
 
 function gen_zip {
-	if [ -f $KERNEL_DIR/out/arch/arm64/boot/Image.gz-dtb ]
+	if [ -f $KERNEL_DIR/out/arch/arm/boot/Image.gz-dtb ]
 	then 
 		echo "{yellow}Zipping Files..{nocol}"
 		mv $KERNEL_DIR/out/arch/arm64/boot/Image.gz-dtb AnyKernel2/Image.gz-dtb
