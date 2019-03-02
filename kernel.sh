@@ -34,7 +34,7 @@ function clone {
 	echo " "
 	echo "{yellow}★★Cloning UberTc Toolchain from Android GoogleSource ..{nocol}"
 	sleep 2
-	git clone --depth 1 --no-single-branch https://bitbucket.org/UBERTC/arm-eabi-4.9.git
+	git clone --depth 1 --no-single-branch https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9
 	echo "{blue}★★GCC cloning done{nocol}"
 	sleep 2
 	echo "{cyan}★★Cloning Kinda Done..!!!{nocol}"
