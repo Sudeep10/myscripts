@@ -67,7 +67,7 @@ function build_kernel {
 		DEFCONFIG=X00T_defconfig
 	elif [ -f $KERNEL_DIR/arch/arm64/configs/X00PD_defconfig ]
 	then
-		DEFCONFIG=X00TD_defconfig
+		DEFCONFIG=X00PD_defconfig
 	else
 		echo "{red}Defconfig Mismatch..!!!{nocol}"
 		tg_post_msg "☠☠Defconfig Mismatch..!! Build Failed..!!👎👎" "$GROUP_ID"
