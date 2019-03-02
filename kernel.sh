@@ -43,8 +43,8 @@ function clone {
 function exports {
 	export KBUILD_BUILD_USER="ci"
 	export KBUILD_BUILD_HOST="semaphore"
-	export ARCH=arm64
-	export SUBARCH=arm64
+	export ARCH=arm
+	export SUBARCH=arm
 }
 
 function tg_post_msg {
@@ -57,9 +57,9 @@ function tg_post_build {
 
 function build_kernel {
 	#better checking defconfig at first
-	if [ -f $KERNEL_DIR/arch/arm64/configs/X00PD_defconfig ]
+	if [ -f $KERNEL_DIR/arch/arm/configs/cyanogenmod_ms013g_defconfig ]
 	then 
-		DEFCONFIG=X00PD_defconfig
+		DEFCONFIG=cyanogenmod_ms013g_defconfig
 	else
 		echo "{red}Defconfig Mismatch..!!!{nocol}"
 		tg_post_msg "☠☠Defconfig Mismatch..!! Build Failed..!!👎👎" "$GROUP_ID"
