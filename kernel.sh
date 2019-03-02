@@ -67,7 +67,7 @@ function build_kernel {
 		sleep 5
 		exit
 	fi
-	export CROSS_COMPILE=$KERNEL_DIR/arm-eabi-4.9/bin/arm-eabi-
+	export CROSS_COMPILE=$KERNEL_DIR/aarch64-linux-android-4.9/bin/aarch64-linux-android-
 	make $DEFCONFIG
 	BUILD_START=$(date +"%s")
 	tg_post_msg "★★ Build Started on $(uname) $(uname -r) ★★" "$GROUP_ID"
