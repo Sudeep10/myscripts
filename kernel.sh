@@ -64,7 +64,7 @@ function build_kernel {
 	#better checking defconfig at first
 	if [ -f $KERNEL_DIR/arch/arm64/configs/X00PD_defconfig ]
 	then 
-		DEFCONFIG=X00T_defconfig
+		DEFCONFIG=X00PD_defconfig
 	elif [ -f $KERNEL_DIR/arch/arm64/configs/X00PD_defconfig ]
 	then
 		DEFCONFIG=X00PD_defconfig
