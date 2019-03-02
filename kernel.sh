@@ -1,5 +1,5 @@
  #
- # Script For Building Android arm Kernel 
+ # Script For Building Android arm64 Kernel 
  #
  # Copyright (c) 2018-2019 Panchajanya1999 <rsk52959@gmail.com>
  #
@@ -32,11 +32,15 @@ function colors {
 
 function clone {
 	echo " "
-	echo "{yellow}★★Cloning UberTc Toolchain from Android GoogleSource ..{nocol}"
+	echo "{yellow}★★Cloning GCC Toolchain from Android GoogleSource ..{nocol}"
 	sleep 2
-	git clone --depth 1 --no-single-branch https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9
+	git clone --depth 1 --no-single-branch https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9.git
 	echo "{blue}★★GCC cloning done{nocol}"
 	sleep 2
+	echo "{yellow}★★Cloning Clang 7 sources (r349610){nocol}"
+	git clone --depth 1 https://github.com/Panchajanya1999/clang-llvm.git -b 8.0
+	echo "{blue}★★Clang Done, Now Its time for AnyKernel ..{nocol}"
+	git clone --depth 1 --no-single-branch https://github.com/Panchajanya1999/AnyKernel2.git
 	echo "{cyan}★★Cloning Kinda Done..!!!{nocol}"
 }
 
@@ -45,6 +49,7 @@ function exports {
 	export KBUILD_BUILD_HOST="semaphore"
 	export ARCH=arm64
 	export SUBARCH=arm64
+	export KBUILD_COMPILER_STRING=$($KERNEL_DIR/clang-llvm/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')
 }
 
 function tg_post_msg {
@@ -59,7 +64,10 @@ function build_kernel {
 	#better checking defconfig at first
 	if [ -f $KERNEL_DIR/arch/arm64/configs/X00PD_defconfig ]
 	then 
-		DEFCONFIG=X00PD_defconfig
+		DEFCONFIG=X00T_defconfig
+	elif [ -f $KERNEL_DIR/arch/arm64/configs/X00PD_defconfig ]
+	then
+		DEFCONFIG=X00TD_defconfig
 	else
 		echo "{red}Defconfig Mismatch..!!!{nocol}"
 		tg_post_msg "☠☠Defconfig Mismatch..!! Build Failed..!!👎👎" "$GROUP_ID"
@@ -67,26 +75,26 @@ function build_kernel {
 		sleep 5
 		exit
 	fi
-	export CROSS_COMPILE=$KERNEL_DIR/aarch64-linux-android-4.9/bin/aarch64-linux-android-
-	make $DEFCONFIG
+	
+	make O=out $DEFCONFIG
 	BUILD_START=$(date +"%s")
 	tg_post_msg "★★ Build Started on $(uname) $(uname -r) ★★" "$GROUP_ID"
-
-	make -j8 2>&1 | tee logcat.txt
+	make -j8 O=out \
+		CC=$KERNEL_DIR/clang-llvm/bin/clang \
+		CLANG_TRIPLE=aarch64-linux-gnu- \
+		CROSS_COMPILE=$KERNEL_DIR/aarch64-linux-android-4.9/bin/aarch64-linux-android- 2>&1 | tee logcat.txt
 	BUILD_END=$(date +"%s")
 	BUILD_TIME=$(date +"%Y%m%d-%T")
 	DIFF=$((BUILD_END - BUILD_START))	
 }
 
 function check_img {
-	if [ -f $KERNEL_DIR/arch/arm/boot/zImage ]
+	if [ -f $KERNEL_DIR/out/arch/arm64/boot/Image.gz-dtb ]
 	then 
 		echo -e "{yellow}Kernel Built Successfully in $((DIFF / 60)) minute(s) and $((DIFF % 60)) seconds..!!{nocol}"
 		tg_post_msg "👍👍Kernel Built Successfully in $((DIFF / 60)) minute(s) and $((DIFF % 60)) seconds..!!" "$GROUP_ID"
 		gen_changelog
-		cd arch/arm/boot
-		tg_post_build "zImage" "$GROUP_ID"
-		#gen_zip
+		gen_zip
 	else 
 		echo -e "{red}Kernel failed to compile after $((DIFF / 60)) minute(s) and $((DIFF % 60)) seconds..!!{nocol}"
 		tg_post_msg "☠☠Kernel failed to compile after $((DIFF / 60)) minute(s) and $((DIFF % 60)) seconds..!!" "$GROUP_ID"
@@ -100,7 +108,7 @@ function gen_changelog {
 }
 
 function gen_zip {
-	if [ -f $KERNEL_DIR/out/arch/arm/boot/Image.gz-dtb ]
+	if [ -f $KERNEL_DIR/out/arch/arm64/boot/Image.gz-dtb ]
 	then 
 		echo "{yellow}Zipping Files..{nocol}"
 		mv $KERNEL_DIR/out/arch/arm64/boot/Image.gz-dtb AnyKernel2/Image.gz-dtb
