@@ -64,7 +64,7 @@ function build_kernel {
 	#better checking defconfig at first
 	if [ -f $KERNEL_DIR/arch/arm64/configs/albus_defconfig ]
 	then 
-		DEFCONFIG=X00PD_defconfig
+		DEFCONFIG=albus_defconfig
 	elif [ -f $KERNEL_DIR/arch/arm64/configs/albus_defconfig ]
 	then
 		DEFCONFIG=albus_defconfig
